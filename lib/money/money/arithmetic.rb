@@ -67,7 +67,8 @@ class Money
     #
     # @raise [TypeError] when other object is not Money
     #
-    def <=>(other_money)
+    def <=>(value)
+      other_money = wrap_numeric(value)
       return nil unless other_money.is_a?(Money)
       if fractional != 0 && other_money.fractional != 0 && currency != other_money.currency
         other_money = other_money.exchange_to(currency)
@@ -113,7 +114,8 @@ class Money
     #
     # @example
     #   Money.new(100) + Money.new(100) #=> #<Money @fractional=200>
-    def +(other_money)
+    def +(value)
+      other_money = wrap_numeric(value)
       return self if other_money.zero?
       raise TypeError unless other_money.is_a?(Money)
       other_money = other_money.exchange_to(currency)
@@ -131,7 +133,8 @@ class Money
     #
     # @example
     #   Money.new(100) - Money.new(99) #=> #<Money @fractional=1>
-    def -(other_money)
+    def -(value)
+      other_money = wrap_numeric(value)
       return self if other_money.zero?
       raise TypeError unless other_money.is_a?(Money)
       other_money = other_money.exchange_to(currency)
@@ -314,7 +317,21 @@ class Money
     # @example
     #   2 * Money.new(10) #=> #<Money @fractional=20>
     def coerce(other)
-      [CoercedNumber.new(other), self]
+      other = wrap_numeric(other)
+      if other.is_a?(Money)
+        [other, self]
+      else
+        [CoercedNumber.new(other), self]
+      end
     end
+
+    def wrap_numeric(value)
+      if value.is_a?(Numeric) && self.class.cast_numeric_to_money
+        Money.new(value, currency)
+      else
+        value
+      end
+    end
+    private :wrap_numeric
   end
 end

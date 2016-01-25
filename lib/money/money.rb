@@ -118,7 +118,7 @@ class Money
     #   @return [Fixnum] Use this to specify precision for converting Rational
     #     to BigDecimal
     attr_accessor :default_bank, :default_formatting_rules,
-      :use_i18n, :infinite_precision, :conversion_precision
+      :use_i18n, :infinite_precision, :conversion_precision, :cast_numeric_to_money
 
     # @attr_writer rounding_mode Use this to specify the rounding mode
     #
@@ -157,6 +157,9 @@ class Money
 
     # Default the conversion of Rationals precision to 16
     self.conversion_precision = 16
+
+    # Default do not cast Numeric to Money
+    self.cast_numeric_to_money = false
   end
 
   def self.inherited(base)
